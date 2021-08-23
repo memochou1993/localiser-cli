@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	Endpoint = "http://127.0.0.1:8000/api"
+	Endpoint  = "http://127.0.0.1:8000/api" // FIXME: use env file
+	ProjectId = "1"                         // FIXME: use env file
 )
 
 var (
@@ -81,7 +82,7 @@ func download(locale string) (err error) {
 }
 
 func fetchLanguages() (languages []Language, err error) {
-	b, err := fetch("projects/1/cache/languages")
+	b, err := fetch(fmt.Sprintf("projects/%s/cache/languages", ProjectId))
 	if err != nil {
 		return
 	}
@@ -92,7 +93,7 @@ func fetchLanguages() (languages []Language, err error) {
 }
 
 func fetchValues(locale string) (values Values, err error) {
-	b, err := fetch(fmt.Sprintf("projects/1/cache/values?locale=%s", locale))
+	b, err := fetch(fmt.Sprintf("projects/%s/cache/values?locale=%s", ProjectId, locale))
 	if err != nil {
 		return
 	}
