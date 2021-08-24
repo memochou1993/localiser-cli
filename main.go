@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -47,7 +48,7 @@ func main() {
 }
 
 func parseFlags() {
-	flag.StringVar(&Dir, "o", ".", "output directory")
+	flag.StringVar(&Dir, "o", "./lang", "output directory")
 	flag.StringVar(&Locale, "l", "", "locale")
 	flag.Parse()
 }
@@ -74,8 +75,14 @@ func download(locale string) (err error) {
 	if err != nil {
 		return
 	}
+	mode := os.ModePerm
+	if _, err = os.Stat(Dir); os.IsNotExist(err) {
+		if err = os.Mkdir(Dir, mode); err != nil {
+			return
+		}
+	}
 	filename := fmt.Sprintf("%s/%s.json", Dir, locale)
-	if err = ioutil.WriteFile(filename, data, 0644); err != nil {
+	if err = ioutil.WriteFile(filename, data, mode); err != nil {
 		return
 	}
 	return
