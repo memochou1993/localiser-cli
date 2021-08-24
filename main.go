@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -11,20 +10,23 @@ import (
 	"net/http"
 	"os"
 	"time"
-)
 
-const (
-	Endpoint  = "http://127.0.0.1:8000/api" // FIXME: use env file
-	ProjectId = "1"                         // FIXME: use env file
-)
-
-var (
-	Dir    string
-	Locale string
+	"gopkg.in/yaml.v2"
 )
 
 var client = &http.Client{
 	Timeout: 10 * time.Second,
+}
+
+var (
+	config Config
+	locale string
+)
+
+type Config struct {
+	Endpoint        string `yaml:"endpoint"`
+	ProjectID       string `yaml:"project_id"`
+	OutputDirectory string `yaml:"output_directory"`
 }
 
 type Language struct {
@@ -36,8 +38,11 @@ type Values map[string]string
 
 func main() {
 	parseFlags()
-	if Locale != "" {
-		if err := download(Locale); err != nil {
+	if err := parseConfig(); err != nil {
+		log.Fatal(err)
+	}
+	if locale != "" {
+		if err := download(locale); err != nil {
 			log.Fatal(err)
 		}
 		return
@@ -47,9 +52,16 @@ func main() {
 	}
 }
 
+func parseConfig() (err error) {
+	file, err := ioutil.ReadFile("localiser.yaml")
+	if err != nil {
+		return
+	}
+	return yaml.Unmarshal(file, &config)
+}
+
 func parseFlags() {
-	flag.StringVar(&Dir, "o", "./lang", "output directory")
-	flag.StringVar(&Locale, "l", "", "locale")
+	flag.StringVar(&locale, "l", "", "locale")
 	flag.Parse()
 }
 
@@ -76,12 +88,12 @@ func download(locale string) (err error) {
 		return
 	}
 	mode := os.ModePerm
-	if _, err = os.Stat(Dir); os.IsNotExist(err) {
-		if err = os.Mkdir(Dir, mode); err != nil {
+	if _, err = os.Stat(config.OutputDirectory); os.IsNotExist(err) {
+		if err = os.Mkdir(config.OutputDirectory, mode); err != nil {
 			return
 		}
 	}
-	filename := fmt.Sprintf("%s/%s.json", Dir, locale)
+	filename := fmt.Sprintf("%s/%s.json", config.OutputDirectory, locale)
 	if err = ioutil.WriteFile(filename, data, mode); err != nil {
 		return
 	}
@@ -89,7 +101,7 @@ func download(locale string) (err error) {
 }
 
 func fetchLanguages() (languages []Language, err error) {
-	b, err := fetch(fmt.Sprintf("projects/%s/cache/languages", ProjectId))
+	b, err := fetch(fmt.Sprintf("projects/%s/cache/languages", config.ProjectID))
 	if err != nil {
 		return
 	}
@@ -100,7 +112,7 @@ func fetchLanguages() (languages []Language, err error) {
 }
 
 func fetchValues(locale string) (values Values, err error) {
-	b, err := fetch(fmt.Sprintf("projects/%s/cache/values?locale=%s", ProjectId, locale))
+	b, err := fetch(fmt.Sprintf("projects/%s/cache/values?locale=%s", config.ProjectID, locale))
 	if err != nil {
 		return
 	}
@@ -111,12 +123,12 @@ func fetchValues(locale string) (values Values, err error) {
 }
 
 func fetch(target string) (b []byte, err error) {
-	resp, err := client.Get(fmt.Sprintf("%s/%s", Endpoint, target))
+	resp, err := client.Get(fmt.Sprintf("%s/%s", config.Endpoint, target))
 	if err != nil {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		err = errors.New(fmt.Sprintf("Unexpected response code: %v", resp.StatusCode))
+		err = fmt.Errorf("unexpected response code: %v", resp.StatusCode)
 		return
 	}
 	defer closeBody(resp.Body)
