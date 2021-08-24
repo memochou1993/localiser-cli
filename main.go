@@ -14,14 +14,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var client = &http.Client{
-	Timeout: 10 * time.Second,
-}
-
 var (
+	option Option
 	config Config
-	locale string
+	client = &http.Client{
+		Timeout: 10 * time.Second,
+	}
 )
+
+type Option struct {
+	File   string
+	Locale string
+}
 
 type Config struct {
 	Endpoint        string `yaml:"endpoint"`
@@ -41,8 +45,8 @@ func main() {
 	if err := parseConfig(); err != nil {
 		log.Fatal(err)
 	}
-	if locale != "" {
-		if err := download(locale); err != nil {
+	if option.Locale != "" {
+		if err := download(option.Locale); err != nil {
 			log.Fatal(err)
 		}
 		return
@@ -53,15 +57,20 @@ func main() {
 }
 
 func parseConfig() (err error) {
-	file, err := ioutil.ReadFile("localiser.yaml")
+	file := "localiser.yaml"
+	if option.File != "" {
+		file = option.File
+	}
+	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		return
 	}
-	return yaml.Unmarshal(file, &config)
+	return yaml.Unmarshal(b, &config)
 }
 
 func parseFlags() {
-	flag.StringVar(&locale, "l", "", "locale")
+	flag.StringVar(&option.File, "f", "", "config file")
+	flag.StringVar(&option.Locale, "l", "", "locale")
 	flag.Parse()
 }
 
