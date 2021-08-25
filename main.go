@@ -98,7 +98,7 @@ func download(locale string) (err error) {
 	}
 	mode := os.ModePerm
 	if _, err = os.Stat(config.OutputDirectory); os.IsNotExist(err) {
-		if err = os.Mkdir(config.OutputDirectory, mode); err != nil {
+		if err = os.MkdirAll(config.OutputDirectory, mode); err != nil {
 			return
 		}
 	}
