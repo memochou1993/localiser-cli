@@ -1,6 +1,25 @@
 # Localiser CLI
 
-Localiser CLI is a command-line tool that downloads locale files from Localiser to local.
+Localiser CLI is a command-line tool that lets you sync locale files from server to local.
+
+## Usage
+
+Download [binary](https://github.com/memochou1993/localiser-cli/tree/master/bin) and set to `PATH`.
+
+Create `localiser.yaml` to specified project.
+
+```YAML
+---
+endpoint: http://localhost:8000/api
+project_id: 1
+output_directory: src/assets/lang
+```
+
+Sync locale files with `localiser` command.
+
+```
+localiser
+```
 
 ## Development
 
