@@ -110,7 +110,7 @@ func download(locale string) (err error) {
 }
 
 func fetchLanguages() (languages []Language, err error) {
-	b, err := fetch(fmt.Sprintf("projects/%s/cache/languages", config.ProjectID))
+	b, err := fetch(fmt.Sprintf("projects/%s/locales", config.ProjectID))
 	if err != nil {
 		return
 	}
@@ -121,7 +121,7 @@ func fetchLanguages() (languages []Language, err error) {
 }
 
 func fetchValues(locale string) (values Values, err error) {
-	b, err := fetch(fmt.Sprintf("projects/%s/cache/values?locale=%s", config.ProjectID, locale))
+	b, err := fetch(fmt.Sprintf("projects/%s/messages?locale=%s", config.ProjectID, locale))
 	if err != nil {
 		return
 	}
