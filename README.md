@@ -17,7 +17,7 @@ output_directory: src/assets/lang
 
 Sync locale files with `localiser` command.
 
-```
+```BASH
 localiser
 ```
 
@@ -37,6 +37,6 @@ cp localiser.example.yaml localiser.yaml
 
 Download locale files from server.
 
-```
+```BASH
 go run main.go
 ```
