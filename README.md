@@ -10,7 +10,7 @@ Create `localiser.yaml` to specified project.
 
 ```YAML
 ---
-endpoint: http://localhost:8000/api
+endpoint: http://localhost:8000
 project_id: 1
 output_directory: src/assets/lang
 ```

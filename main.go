@@ -132,7 +132,7 @@ func fetchValues(locale string) (values Values, err error) {
 }
 
 func fetch(target string) (b []byte, err error) {
-	resp, err := client.Get(fmt.Sprintf("%s/%s", config.Endpoint, target))
+	resp, err := client.Get(fmt.Sprintf("%s/api/%s", config.Endpoint, target))
 	if err != nil {
 		return
 	}
